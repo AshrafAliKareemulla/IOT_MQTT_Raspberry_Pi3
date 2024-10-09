@@ -1,0 +1,252 @@
+react by maximillion
+react complete guide 2023
+
+
+To install Node Red on Raspberry Pi, go to browser and type nodered, go to nodered.org, click on get started, then 'On a device' tab,
+click on 'Raspberry Pi'
+You will get a link as 'bash <(....)' 
+Copy the above link and run it in the terminal.
+
+
+
+
+Press 'sudo apt update' followed by 'sudo apt upgrade' to keep the raspberry pi 4 updated
+
+Type 'ifconfig' in the raspberry pi terminal to check for its IP Address
+Check for 'wlan0' space for the ip address, usually present at the 'inet' area
+
+
+
+
+
+
+Before setting 'PermitRootLogin' to yes, first go the top left corner of the screen and click on raspberry pi logo.
+Then go to Preferences > Raspberry Pi Configuration
+Go to the Interfaces tab, enable the 'SSH' key.
+Then restart the Operating System.
+
+
+
+
+
+To change the password: 'sudo passwd kushal'
+Enter the new password and save it
+
+
+
+
+
+After restarting, follow the below steps
+Go to the terminal and type the following to get the ssh access.
+
+sudo vi /etc/ssh/sshd_config
+Then press Enter.
+
+Now after entering into the file, press 'esc : qa!' to not save the file
+Press 'esc : x' to save the file
+Press 'insert' key on the keyboard to insert any strings.
+
+Go to the 'Authentication' area space and then change the following line:
+
+'#PermitRootLogin prohibit-password' to 'PermitRootLogin yes'
+
+then press 'esc : x' to save the changes
+
+'systemctl restart sshd' to refresh the ssh
+
+
+
+
+
+
+Raspberry Pi 4 Board [1]
+
+Hostname : ashraf-ali-raspberry
+Ip Address : 10.0.51.181 
+To access the operating system through command line: ssh ashraf-ali-raspberry@10.0.48.225
+Password : 1234
+
+
+
+
+
+Raspberry Pi 4 Board [2]
+
+Hostname : ashraf-ali-raspberry
+Ip Address : 10.0.55.235
+To access the operating system through command line: ssh ashraf-ali-raspberry@10.0.49.15
+Password : 1234
+
+
+
+
+
+
+Raspberry Pi 4 Board [3] [Kushal Gajjar's Raspberry Pi Board]
+
+Hostname : kushal
+Ip Address : 10.0.55.43
+To access the operating system through command line: ssh kushal@10.0.55.43
+Password : 1234
+
+
+
+
+
+To run the MQTT mosquitto server, follow the following commands
+
+
+
+sudo apt update
+sudo apt upgrade
+If any error persists, type the following commands
+
+
+sudo-i
+apt-get update
+apt install snapd
+
+
+
+
+
+
+
+'sudo -i' then 'apt-get update' then 'apt-get upgrade'
+
+Now to install mosquitto, type 'sudo apt install mosquitto mosquitto-clients'
+
+then type 'mosquitto' if the port is already in use, do the following
+
+
+'ps -ef | grep mosquitto'
+You will get some process ids. Now we have to kill those processes
+
+sudo kill 9258
+
+
+
+
+
+
+
+
+Further updates to the mosquitto
+sudo nano /etc/mosquitto/mosquitto.conf
+add the following lines
+
+
+
+listener 1883
+allow_anonymous true
+
+
+Press ^X and Enter
+sudo systemctl restart mosquitto
+sudo systemctl status mosquitto
+
+
+
+
+
+
+
+
+
+
+
+
+
+To connect pi baords as mqtt clients, do the following
+
+ensure the mqtt broker i.e kushal's raspberry pi is working and change the .config file
+after type 'mosquitto_pub -h 10.0.52.169 -t sensor_data -m "The Sensor data arrives1"' to publish
+
+
+
+
+Before that we need to create a .py file to process the data in the raspberry pi clients
+
+nano mqtt_sub_sample1.py
+
+then after write the following code
+
+
+
+
+import paho.mqtt.client as mqtt
+
+def on_message(client, userdata, message):
+    print(f"Received message on topic {message.topic}: {message.payload}")
+
+client = mqtt.Client()
+client.on_message = on_message
+client.connect("10.0.52.169")
+client.subscribe("sensor_data")
+client.loop_forever()
+
+
+
+
+
+
+
+
+
+after saving, install paho.mqtt
+to install, do the following
+
+sudo -i
+apt install python3-paho-mqtt
+
+then run 'python3 mqtt_sub_sample1.py'
+
+
+
+
+
+
+
+
+
+If the mosquitto_sub is not working,
+
+check if 'systemctl status mosquitto' is active.
+
+if not active, just type 'systemctl start mosquitto' to start activating it
+
+then also check for any miss leading code lines in 'sudo nano /etc/mosquitto/mosquitto.conf'
+
+
+
+
+mosquitto_sub -h 10.0.52.169 -t sensor_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To access node red
+
+node-red -u ~/.node-red -p 1880 -b 10.0.52.169
+
+http://10.0.52.169:1880/
+
+
+
+
